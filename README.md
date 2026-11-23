@@ -1,1 +1,60 @@
 # tc_ec
+
+A Rust workspace for elliptic-curve cryptography after Bouncy Castle, over the
+curves of `tc_ec_core`, `tc_fp_curve` and `tc_f2m_curve`. It starts with the
+keys that every elliptic-curve algorithm shares. Each crate is published
+separately and keeps its own README and changelog.
+
+[![CI](https://github.com/TomiCheng/tc_ec/actions/workflows/ci.yml/badge.svg)](https://github.com/TomiCheng/tc_ec/actions/workflows/ci.yml)
+[![license](https://img.shields.io/badge/license-MIT%2FApache--2.0-blue.svg)](#license)
+![rustc](https://img.shields.io/badge/rustc-1.85+-blue.svg)
+
+## Crates
+
+| Crate | Version | Description |
+| --- | --- | --- |
+| [`tc_ec_key`](tc_ec_key) | [![crates.io](https://img.shields.io/crates/v/tc_ec_key.svg)](https://crates.io/crates/tc_ec_key) [![docs.rs](https://docs.rs/tc_ec_key/badge.svg)](https://docs.rs/tc_ec_key) | Elliptic-curve private and public keys and the key-pair generator, after Bouncy Castle's `ECPrivateKeyParameters`, `ECPublicKeyParameters` and `ECKeyPairGenerator`, over any `tc_ec_core` curve. `no_std` with `alloc`, no `unsafe`. Constant time in d over a constant-time curve; the checks of public points are variable time. |
+
+## Requirements
+
+Rust 1.85 or later, edition 2024. Every crate builds without `std`;
+`tc_ec_key` always uses `alloc` for its integers.
+
+Rust 1.85 is the earliest compiler for edition 2024, and it is guaranteed for
+every build. Besides `tc_*` crates, the libraries depend only on `num-traits`
+and `rand_core`, both of which build on 1.85. Dev-dependencies used only by
+tests are exempt. The workspace lock tracks the latest dependency releases,
+so CI on stable tests what a user on a current toolchain resolves.
+
+## Workspace checks
+
+```text
+cargo test --locked
+cargo test --locked --all-features
+cargo fmt --all -- --check
+cargo clippy --locked --all-targets --all-features -- -D warnings
+cargo doc --locked --no-deps --all-features
+```
+
+CI additionally runs these on Linux x64, i686 and ARM64, macOS ARM64, and
+Windows x64, checks the `wasm32-unknown-unknown` and `aarch64-unknown-none`
+targets and each crate's dependency set on each target, checks the build on
+Rust 1.85.0, and verifies the package archives. See
+[.github/workflows/ci.yml](.github/workflows/ci.yml).
+
+Before a release, check each archive and run publication validation from a
+committed checkout:
+
+```text
+cargo package -p <crate> --list --locked
+cargo publish -p <crate> --dry-run --locked
+```
+
+The archive must include both license texts, the crate README, the changelog,
+the source and the integration tests, and no `target/` or other build
+artifacts.
+
+## License
+
+Licensed under either the [MIT license](LICENSE-MIT) or the
+[Apache License, Version 2.0](LICENSE-APACHE), at your option.
